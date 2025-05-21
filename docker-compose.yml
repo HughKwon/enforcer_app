@@ -1,0 +1,25 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5005:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -d $${POSTGRES_DB} -U postgres
+      interval: 2s
+      retries: 10
+volumes:
+  postgres_data:
