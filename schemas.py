@@ -31,11 +31,33 @@ class CircleAndUserSchema(Schema):
     user = fields.List(fields.Nested(PlainUserSchema))
     circle = fields.Nested(PlainCircleSchema)
 
+# class CircleAndUserSchema(Schema):
+#     user = fields.Nested(UserSchema, many=True)
+#     circle = fields.Nested(CircleSchema)
+
+class CircleMemberRemoveSchema(Schema):
+    message = fields.Str()
+    user = fields.Str()
+    circle = fields.Str()
 
 class CircleMemberSchema(Schema):
     id = fields.Int(dump_only=True)
     user_id = fields.Int(required=True)
     role = fields.Str(required=False, load_default="member")
+
+class SendCircleMessageSchema(Schema):
+    message = fields.Str()
+
+class CircleMessageSchema(Schema):
+    id = fields.Int(dump_only=True)
+    message = fields.Str(required=True)
+    created_at = fields.DateTime(dump_only=True)
+    user = fields.Nested(PlainUserSchema, only=("id", "username"), dump_only=True)
+
+class GetCircleMessagesSchema(Schema):
+    messages = fields.List(fields.Nested(CircleMessageSchema))
+
+
 
 
 

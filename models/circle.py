@@ -9,3 +9,5 @@ class CircleModel(db.Model):
     created_by_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=False, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     users = db.relationship("UserModel", back_populates="circles", secondary="circle_memberships")
+
+    circle_messages = db.relationship("CircleMessageModel", back_populates="circle", lazy="dynamic")

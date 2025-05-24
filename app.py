@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from resources.user import blp as UserBluePrint
 from resources.circle import blp as CircleBluePrint
+from resources.circle_message import blp as CircleMessageBluePrint
 
 
 
@@ -99,6 +100,7 @@ def create_app(db_url=None):
 
     api.register_blueprint(UserBluePrint)
     api.register_blueprint(CircleBluePrint)
+    api.register_blueprint(CircleMessageBluePrint)
 
     return app
 

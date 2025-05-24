@@ -11,3 +11,5 @@ class UserModel(db.Model):
     account_created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_staff = db.Column(db.Boolean(), nullable=False)
     circles = db.relationship("CircleModel", back_populates="users", secondary="circle_memberships")
+
+    circle_messages = db.relationship("CircleMessageModel", back_populates="user", lazy="dynamic")

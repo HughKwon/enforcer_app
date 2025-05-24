@@ -11,7 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from db import db
 from models import CircleModel, CircleMembershipModel, UserModel
 
-from schemas import CircleSchema, CircleMemberSchema, UserSchema, CircleAndUserSchema
+from schemas import CircleSchema, CircleMemberSchema, UserSchema, CircleAndUserSchema, CircleMemberRemoveSchema
 
 blp = Blueprint("circles", __name__, description="Operations on Circle")
 
@@ -76,9 +76,10 @@ class CircleUsers(MethodView):
         #     "circle": circle,
         #     "user": circle.users
         # })
-        return {"circle": circle,
+        return {
+                "circle": circle,
                 "user": circle.users
-        }
+                }
 
     @jwt_required()
     @blp.arguments(CircleMemberSchema)
@@ -108,3 +109,24 @@ class CircleUsers(MethodView):
             abort(500, message="There was an issue adding the member to the circle.")
 
         return {"message": "User is successfully added to the circle."}
+
+    # @blp.arguments(CircleMemberSchema)
+    # @blp.arguments(CircleAndUserSchema)
+    @blp.arguments(CircleMemberSchema)
+    @blp.response(200,CircleMemberRemoveSchema)
+    def delete(self, circle_membership_data, circle_id):
+        circle = CircleModel.query.get_or_404(circle_id)
+        user = UserModel.query.get_or_404(circle_membership_data["user_id"])
+
+        if user not in circle.users:
+            abort(404, message="User is not in the circle.")
+
+        circle.users.remove(user)
+
+        try:
+            db.session.add(circle)
+            db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="An error has occurred while removing the user from the circle.")
+
+        return {"message": "User removed from the circle.", "user": user.id, "circle":circle.id}
