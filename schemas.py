@@ -57,6 +57,30 @@ class CircleMessageSchema(Schema):
 class GetCircleMessagesSchema(Schema):
     messages = fields.List(fields.Nested(CircleMessageSchema))
 
+class GoalSchema(Schema):
+    id = fields.Int(dump_only=True)
+    user = fields.Nested(PlainUserSchema, dump_only=True)
+    circle = fields.Nested(PlainCircleSchema, dump_only=True)
+    circle_id = fields.Str(required=False)
+    title = fields.Str(required=True)
+    description = fields.Str(required=False)
+    goal_type = fields.Str(required=False, load_default="daily")
+    start_date = fields.DateTime(required=False)
+    end_date = fields.DateTime(required=False)
+    is_active = fields.Boolean(required=False, load_default=False)
+    created_at = fields.DateTime(dump_only=True)
+
+class GoalUpdateSchema(Schema):
+    circle_id = fields.Str(required=False)
+    title = fields.Str(required=False)
+    description = fields.Str(required=False)
+    goal_type = fields.Str(required=False)
+    start_date = fields.DateTime(required=False)
+    is_active = fields.Boolean(required=False)
+
+
+
+
 
 
 

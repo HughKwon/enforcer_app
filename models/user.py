@@ -13,3 +13,21 @@ class UserModel(db.Model):
     circles = db.relationship("CircleModel", back_populates="users", secondary="circle_memberships")
 
     circle_messages = db.relationship("CircleMessageModel", back_populates="user", lazy="dynamic")
+    goals = db.relationship("GoalModel", back_populates="user", lazy="dynamic")
+
+    follower_assocs = db.relationship("FollowModel", foreign_keys="[FollowModel.following_id]",
+                                      back_populates="following",
+                                      cascade="all, delete-orphan")
+    follwing_assocs = db.relationship("FollowModel", foreign_keys="[FollowModel.follower_id]",
+                                      back_populates="follower",
+                                      cascade="all, delete-orphan")
+
+    followers = db.relationship("UserModel", secondary="follows",
+                                primaryjoin="UserModel.id==FollowModel.following_id",
+                                secondaryjoin="UserModel.id==FollowModel.follwer_id",
+                                viewonly=True)
+
+    follwings = db.relationship("UserModel", secondary="follows",
+                                primaryjoin="UserModel.id==FollowModel.follower_id",
+                                secondaryjoin="UserModel.id==FollowModel.follwing_id",
+                                viewonly=True)

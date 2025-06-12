@@ -11,3 +11,4 @@ class CircleModel(db.Model):
     users = db.relationship("UserModel", back_populates="circles", secondary="circle_memberships")
 
     circle_messages = db.relationship("CircleMessageModel", back_populates="circle", lazy="dynamic")
+    circle_goals = db.relationship("GoalModel", back_populates="circle", lazy="dynamic")
