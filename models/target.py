@@ -15,3 +15,4 @@ class TargetModel(db.Model):
 
     goal = db.relationship("GoalModel", back_populates="targets")
     user = db.relationship("UserModel", back_populates="targets")
+    check_ins = db.relationship("CheckInModel", back_populates="target")

@@ -3,14 +3,14 @@ from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 
-from schemas import GoalSchema, GoalUpdateSchema
+from schemas import GoalSchema, GoalUpdateSchema, PlainCheckInSchema, CheckInListSchema
 
 from flask_jwt_extended import (
     jwt_required,
     get_jwt_identity
 )
 
-from models import GoalModel
+from models import GoalModel, CheckInModel
 
 
 blp = Blueprint("goals", __name__, description="Operations on goals.")
@@ -91,3 +91,28 @@ class Goal(MethodView):
             abort(500, message="There was an issue while deleting the goal")
 
         return {"message": "Goal successfully deleted"}
+
+@blp.route("/goal/<int:goal_id>/check-ins")
+class GoalCheckInList(MethodView):
+    @jwt_required()
+    @blp.arguments(PlainCheckInSchema)
+    def post(self, check_in_data, goal_id):
+        current_user_id = get_jwt_identity()
+        check_in = CheckInModel(**check_in_data, goal_id=goal_id, user_id = current_user_id)
+        try:
+            db.session.add(check_in)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            abort (500, message="There was an issue while creating the check-in")
+            # return {"message": str(e)}
+
+        return {"message": "Check-in successfully created"}
+
+    @jwt_required()
+    @blp.response(200,CheckInListSchema)
+    def get(self, goal_id):
+        goal = GoalModel.query.get_or_404(goal_id)
+
+        return {"check_ins": goal.check_ins}
+
+

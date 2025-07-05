@@ -14,5 +14,7 @@ class GoalModel(db.Model):
     is_active = db.Column(db.Boolean, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+    targets = db.relationship("TargetModel", back_populates="goal", lazy="dynamic")
     user = db.relationship("UserModel", back_populates="goals")
     circle = db.relationship("CircleModel", back_populates="circle_goals")
+    check_ins = db.relationship("CheckInModel", back_populates="goal")

@@ -57,6 +57,35 @@ class CircleMessageSchema(Schema):
 class GetCircleMessagesSchema(Schema):
     messages = fields.List(fields.Nested(CircleMessageSchema))
 
+class GoalUpdateSchema(Schema):
+    circle_id = fields.Str(required=False)
+    title = fields.Str(required=False)
+    description = fields.Str(required=False)
+    goal_type = fields.Str(required=False)
+    start_date = fields.DateTime(required=False)
+    is_active = fields.Boolean(required=False)
+
+class FollowingSchema(Schema):
+    followings = fields.List(fields.Nested(PlainUserSchema()))
+
+# class FollowingSchema(Schema):
+#     id = fields.Int(dump_only=True)
+#     username = fields.Str(required=True)
+
+class FollowersSchema(Schema):
+    followers = fields.List(fields.Nested(PlainUserSchema))
+
+class TargetSchema(Schema):
+    id = fields.Int(dump_only=True)
+    goal_id = fields.Int(required=False)
+    user_id = fields.Int()
+    title = fields.Str(required=True)
+    description = fields.Str(required=False)
+    is_completed = fields.Boolean(required=False, dump_only=True)
+    created_at = fields.DateTime(dump_only=True)
+    started_at = fields.DateTime()
+    completed_at = fields.DateTime()
+
 class GoalSchema(Schema):
     id = fields.Int(dump_only=True)
     user = fields.Nested(PlainUserSchema, dump_only=True)
@@ -69,14 +98,20 @@ class GoalSchema(Schema):
     end_date = fields.DateTime(required=False)
     is_active = fields.Boolean(required=False, load_default=False)
     created_at = fields.DateTime(dump_only=True)
+    targets = fields.List(fields.Nested(TargetSchema))
 
-class GoalUpdateSchema(Schema):
-    circle_id = fields.Str(required=False)
-    title = fields.Str(required=False)
-    description = fields.Str(required=False)
-    goal_type = fields.Str(required=False)
-    start_date = fields.DateTime(required=False)
-    is_active = fields.Boolean(required=False)
+class PlainCheckInSchema(Schema):
+    id = fields.Int(dump_only=True)
+    content = fields.Str(required=False)
+    created_at = fields.DateTime(dump_only=True)
+
+class CheckInSchema(Schema):
+    user = fields.Nested(PlainUserSchema, dump_only=True)
+    goal = fields.Nested(GoalSchema, dump_only=True, required=False)
+    target = fields.Nested(TargetSchema, dump_only=True, required=False)
+
+class CheckInListSchema(Schema):
+    check_ins = fields.List(fields.Nested(PlainCheckInSchema))
 
 
 
