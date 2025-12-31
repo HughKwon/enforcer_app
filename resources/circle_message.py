@@ -15,7 +15,7 @@ from db import db
 blp = Blueprint("circle_chat_messages", __name__, description="Operations on Circle chat messages")
 
 @blp.route("/circle/<string:circle_id>/message")
-class CircleMessage(MethodView):
+class CircleMessageList(MethodView):
     @jwt_required()
     @blp.response(200, GetCircleMessagesSchema)
     def get(self, circle_id):

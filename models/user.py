@@ -10,9 +10,12 @@ class UserModel(db.Model):
     email = db.Column(db.String(80), unique=True, nullable=False)
     account_created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_staff = db.Column(db.Boolean(), nullable=False)
+
     circles = db.relationship("CircleModel", back_populates="users", secondary="circle_memberships")
     targets = db.relationship("TargetModel", back_populates="user", lazy="dynamic")
     check_ins = db.relationship("CheckInModel", back_populates="user", lazy="dynamic")
+    comments = db.relationship("CommentModel", back_populates="user", lazy="dynamic")
+    reactions = db.relationship("ReactModel", back_populates="user", lazy="dynamic")
 
     circle_messages = db.relationship("CircleMessageModel", back_populates="user", lazy="dynamic")
     goals = db.relationship("GoalModel", back_populates="user", lazy="dynamic")

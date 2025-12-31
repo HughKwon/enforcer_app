@@ -86,10 +86,8 @@ class TargetSchema(Schema):
     started_at = fields.DateTime()
     completed_at = fields.DateTime()
 
-class GoalSchema(Schema):
+class PlainGoalSchema(Schema):
     id = fields.Int(dump_only=True)
-    user = fields.Nested(PlainUserSchema, dump_only=True)
-    circle = fields.Nested(PlainCircleSchema, dump_only=True)
     circle_id = fields.Str(required=False)
     title = fields.Str(required=True)
     description = fields.Str(required=False)
@@ -98,6 +96,10 @@ class GoalSchema(Schema):
     end_date = fields.DateTime(required=False)
     is_active = fields.Boolean(required=False, load_default=False)
     created_at = fields.DateTime(dump_only=True)
+
+class GoalSchema(PlainGoalSchema):
+    user = fields.Nested(PlainUserSchema, dump_only=True)
+    circle = fields.Nested(PlainCircleSchema, dump_only=True)
     targets = fields.List(fields.Nested(TargetSchema))
 
 class PlainCheckInSchema(Schema):
@@ -105,13 +107,36 @@ class PlainCheckInSchema(Schema):
     content = fields.Str(required=False)
     created_at = fields.DateTime(dump_only=True)
 
-class CheckInSchema(Schema):
+class PlainReactSchema(Schema):
+    id = fields.Int(dump_only=True)
+    react_type = fields.Str(required=False)
+
+class PlainCheckInCommentSchema(Schema):
+    id = fields.Int(dump_only=True)
+    content = fields.String(required=True)
+    created_at = fields.DateTime(dump_only=True)
+
+class ReactSchema(PlainReactSchema):
+    check_in = fields.Nested(PlainCheckInSchema, dump_only=True, required=False)
+    comment = fields.Nested(PlainCheckInCommentSchema, dump_only=True, required=False)
+    user = fields.Nested(PlainUserSchema, dump_only=True, required=False)
+
+class CheckInSchema(PlainCheckInSchema):
     user = fields.Nested(PlainUserSchema, dump_only=True)
-    goal = fields.Nested(GoalSchema, dump_only=True, required=False)
+    goal = fields.Nested(PlainGoalSchema, dump_only=True, required=False)
     target = fields.Nested(TargetSchema, dump_only=True, required=False)
+    reacts = fields.List(fields.Nested(PlainReactSchema))
 
 class CheckInListSchema(Schema):
     check_ins = fields.List(fields.Nested(PlainCheckInSchema))
+
+class CheckInCommentSchema(PlainCheckInCommentSchema):
+    # check_in = fields.Nested(PlainCheckInSchema, dump_only=True)
+    user = fields.Nested(PlainUserSchema, dump_only=True)
+    reacts = fields.List(fields.Nested(PlainReactSchema))
+
+class CheckInCommentListSchema(Schema):
+    fields.List(fields.Nested(CheckInCommentSchema))
 
 
 

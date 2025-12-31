@@ -3,7 +3,7 @@ from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError
 
-from schemas import GoalSchema, GoalUpdateSchema, PlainCheckInSchema, CheckInListSchema
+from schemas import GoalSchema, GoalUpdateSchema, PlainCheckInSchema, CheckInListSchema, CheckInSchema
 
 from flask_jwt_extended import (
     jwt_required,
@@ -98,6 +98,8 @@ class GoalCheckInList(MethodView):
     @blp.arguments(PlainCheckInSchema)
     def post(self, check_in_data, goal_id):
         current_user_id = get_jwt_identity()
+        # Validate goal exists before creating check-in
+        goal = GoalModel.query.get_or_404(goal_id)
         check_in = CheckInModel(**check_in_data, goal_id=goal_id, user_id = current_user_id)
         try:
             db.session.add(check_in)
@@ -115,4 +117,14 @@ class GoalCheckInList(MethodView):
 
         return {"check_ins": goal.check_ins}
 
+# @blp.route("/goal/<int:goal_id>/check-ins/<int:check_in_id>")
+# class GoalCheckIn(MethodView):
+#     @jwt_required()
+#     @blp.response(200, CheckInSchema)
+#     def get(self, goal_id, check_in_id):
+#         #may need goal specific check in IDs?
+#         #Not sure what the best method is here
+#         check_in = CheckInModel.query.get_or_404(check_in_id)
+
+#         return(check_in)
 

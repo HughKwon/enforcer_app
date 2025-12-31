@@ -69,6 +69,8 @@ class TargetCheckInList(MethodView):
     @blp.arguments(CheckInSchema)
     def post(self, check_in_data, target_id):
         current_user_id = get_jwt_identity()
+        # Validate target exists before creating check-in
+        target = TargetModel.query.get_or_404(target_id)
         check_in = CheckInModel(**check_in_data, user_id=current_user_id,
                                 target_id=target_id)
 
@@ -87,3 +89,11 @@ class TargetCheckInList(MethodView):
 
         return({"check_ins":target.check_ins})
 
+
+# @blp.route("/target/<int:target_id>/check-ins/<int:check_in_id>")
+# class TargetCheckIn(MethodView):
+#     @jwt_required()
+#     @blp.response(201, CheckInSchema)
+#     def get(self, target_id, check_in_id):
+#         check_in = CheckInModel.query.get_or_404(check_in_id)
+#         return(check_in)

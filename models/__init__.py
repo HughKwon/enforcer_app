@@ -6,3 +6,5 @@ from models.goal import GoalModel
 from models.follow import FollowModel
 from models.target import TargetModel
 from models.check_in import CheckInModel
+from models.comment import CommentModel
+from models.reaction import ReactModel

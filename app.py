@@ -14,6 +14,9 @@ from resources.circle_message import blp as CircleMessageBluePrint
 from resources.goal import blp as GoalBluePrint
 from resources.follow import blp as FollowBluePrint
 from resources.target import blp as TargetBluePrint
+from resources.check_in import blp as CheckInBluePrint
+from resources.comment import blp as CommentBluePrint
+from resources.reaction import blp as ReactionBluePrint
 
 
 
@@ -107,6 +110,9 @@ def create_app(db_url=None):
     api.register_blueprint(GoalBluePrint)
     api.register_blueprint(FollowBluePrint)
     api.register_blueprint(TargetBluePrint)
+    api.register_blueprint(CheckInBluePrint)
+    api.register_blueprint(CommentBluePrint)
+    api.register_blueprint(ReactionBluePrint)
 
     return app
 
