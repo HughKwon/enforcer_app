@@ -101,7 +101,7 @@ def create_app(db_url=None):
             jsonify(
                 {"description": "The token is not fresh.",
                  "error": "fresh_token_required"}
-            )
+            ), 401
         )
 
     api.register_blueprint(UserBluePrint)
