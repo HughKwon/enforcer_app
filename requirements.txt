@@ -9,4 +9,3 @@ passlib
 psycopg2-binary
 flask-jwt-extended
 pytest
-unittest
