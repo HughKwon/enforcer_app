@@ -4,6 +4,7 @@ from models.circle_membership import CircleMembershipModel
 from models.circle_message import CircleMessageModel
 from models.goal import GoalModel
 from models.follow import FollowModel
+from models.buddy_request import BuddyRequestModel
 from models.target import TargetModel
 from models.check_in import CheckInModel
 from models.comment import CommentModel

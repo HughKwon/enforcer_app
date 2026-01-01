@@ -9,9 +9,10 @@ from flask.views import MethodView
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from db import db
-from models import CircleModel, CircleMembershipModel, UserModel
+from models import CircleModel, CircleMembershipModel, UserModel, GoalModel, CheckInModel
+from sqlalchemy import func, desc
 
-from schemas import CircleSchema, CircleMemberSchema, UserSchema, CircleAndUserSchema, CircleMemberRemoveSchema
+from schemas import CircleSchema, CircleMemberSchema, UserSchema, CircleAndUserSchema, CircleMemberRemoveSchema, CircleLeaderboardSchema
 
 blp = Blueprint("circles", __name__, description="Operations on Circle")
 
@@ -130,3 +131,84 @@ class CircleUsers(MethodView):
             abort(500, message="An error has occurred while removing the user from the circle.")
 
         return {"message": "User removed from the circle.", "user": user.id, "circle":circle.id}
+
+
+@blp.route("/circle/<int:circle_id>/leaderboard")
+class CircleLeaderboard(MethodView):
+    @jwt_required()
+    @blp.response(200, CircleLeaderboardSchema)
+    def get(self, circle_id):
+        """
+        Get leaderboard for a circle showing member activity and progress.
+
+        Returns stats for each member including:
+        - Total check-ins count
+        - Active goals count
+        - Last check-in timestamp
+        - Member since date
+
+        Ordered by total check-ins (most active first).
+        """
+        current_user_id = int(get_jwt_identity())
+
+        # Verify circle exists and user is a member
+        circle = CircleModel.query.get_or_404(circle_id)
+
+        # Check if user is a member of the circle
+        membership = CircleMembershipModel.query.filter_by(
+            circle_id=circle_id,
+            user_id=current_user_id
+        ).first()
+
+        if not membership:
+            abort(403, message="You must be a member of this circle to view the leaderboard")
+
+        # Get all members of the circle
+        members = CircleMembershipModel.query.filter_by(circle_id=circle_id).all()
+
+        leaderboard_data = []
+
+        for member in members:
+            user = UserModel.query.get(member.user_id)
+
+            # Count total check-ins for this user's goals in this circle
+            total_check_ins = db.session.query(func.count(CheckInModel.id)).join(
+                GoalModel
+            ).filter(
+                GoalModel.user_id == user.id,
+                GoalModel.circle_id == circle_id
+            ).scalar() or 0
+
+            # Count active goals in this circle
+            active_goals = GoalModel.query.filter_by(
+                user_id=user.id,
+                circle_id=circle_id,
+                is_active=True
+            ).count()
+
+            # Get last check-in timestamp for this user's circle goals
+            last_check_in = db.session.query(func.max(CheckInModel.created_at)).join(
+                GoalModel
+            ).filter(
+                GoalModel.user_id == user.id,
+                GoalModel.circle_id == circle_id
+            ).scalar()
+
+            leaderboard_data.append({
+                "user_id": user.id,
+                "username": user.username,
+                "total_check_ins": total_check_ins,
+                "active_goals": active_goals,
+                "last_check_in": last_check_in,
+                "member_since": member.joined_at,
+                "role": member.role
+            })
+
+        # Sort by total check-ins (descending)
+        leaderboard_data.sort(key=lambda x: x["total_check_ins"], reverse=True)
+
+        return {
+            "circle_id": circle.id,
+            "circle_name": circle.name,
+            "leaderboard": leaderboard_data
+        }

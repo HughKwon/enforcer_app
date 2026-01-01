@@ -100,6 +100,18 @@ class GoalCheckInList(MethodView):
         current_user_id = get_jwt_identity()
         # Validate goal exists before creating check-in
         goal = GoalModel.query.get_or_404(goal_id)
+
+        # Validate check-in content based on goal type
+        content = check_in_data.get('content', '')
+
+        # Project and habit goals require content
+        if goal.goal_type in [GoalModel.TYPE_PROJECT, GoalModel.TYPE_HABIT]:
+            if not content or not content.strip():
+                abort(400, message=f"{goal.goal_type.capitalize()} check-ins require content describing progress")
+
+        # Daily and weekly goals should have content but it's not strictly required
+        # (allowing simple "check in" without description for these types)
+
         check_in = CheckInModel(**check_in_data, goal_id=goal_id, user_id = current_user_id)
         try:
             db.session.add(check_in)

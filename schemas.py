@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validates, ValidationError
 
 
 class PlainUserSchema(Schema):
@@ -97,6 +97,15 @@ class PlainGoalSchema(Schema):
     is_active = fields.Boolean(required=False, load_default=False)
     created_at = fields.DateTime(dump_only=True)
 
+    @validates('goal_type')
+    def validate_goal_type(self, value, **kwargs):
+        """Validate that goal_type is one of the allowed types."""
+        from models import GoalModel
+        if value not in GoalModel.VALID_TYPES:
+            raise ValidationError(
+                f"Invalid goal type. Must be one of: {', '.join(GoalModel.VALID_TYPES)}"
+            )
+
 class GoalSchema(PlainGoalSchema):
     user = fields.Nested(PlainUserSchema, dump_only=True)
     circle = fields.Nested(PlainCircleSchema, dump_only=True)
@@ -137,6 +146,46 @@ class CheckInCommentSchema(PlainCheckInCommentSchema):
 
 class CheckInCommentListSchema(Schema):
     fields.List(fields.Nested(CheckInCommentSchema))
+
+class FeedSchema(Schema):
+    feed = fields.List(fields.Nested(CheckInSchema))
+
+class LeaderboardEntrySchema(Schema):
+    user_id = fields.Int()
+    username = fields.Str()
+    total_check_ins = fields.Int()
+    active_goals = fields.Int()
+    last_check_in = fields.DateTime(allow_none=True)
+    member_since = fields.DateTime()
+    role = fields.Str()
+
+class CircleLeaderboardSchema(Schema):
+    circle_id = fields.Int()
+    circle_name = fields.Str()
+    leaderboard = fields.List(fields.Nested(LeaderboardEntrySchema))
+
+class BuddyRequestCreateSchema(Schema):
+    message = fields.Str(required=False)
+
+class BuddyRequestSchema(Schema):
+    id = fields.Int(dump_only=True)
+    from_user_id = fields.Int(dump_only=True)
+    to_user_id = fields.Int(dump_only=True)
+    status = fields.Str(dump_only=True)
+    message = fields.Str(dump_only=True)
+    created_at = fields.DateTime(dump_only=True)
+    responded_at = fields.DateTime(dump_only=True)
+    from_user = fields.Nested(PlainUserSchema, dump_only=True)
+    to_user = fields.Nested(PlainUserSchema, dump_only=True)
+
+class BuddyInfoSchema(Schema):
+    id = fields.Int()
+    username = fields.Str()
+    email = fields.Str()
+    buddies_since = fields.DateTime()
+
+class BuddyListSchema(Schema):
+    buddies = fields.List(fields.Nested(BuddyInfoSchema))
 
 
 

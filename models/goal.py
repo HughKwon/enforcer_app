@@ -3,6 +3,17 @@ from datetime import datetime
 
 class GoalModel(db.Model):
     __tablename__="goals"
+
+    # Goal type constants
+    TYPE_DAILY = 'daily'
+    TYPE_WEEKLY = 'weekly'
+    TYPE_MONTHLY = 'monthly'
+    TYPE_PROJECT = 'project'
+    TYPE_HABIT = 'habit'
+    TYPE_CUSTOM = 'custom'
+
+    VALID_TYPES = [TYPE_DAILY, TYPE_WEEKLY, TYPE_MONTHLY, TYPE_PROJECT, TYPE_HABIT, TYPE_CUSTOM]
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=False, nullable=False)
     circle_id = db.Column(db.Integer, db.ForeignKey("circles.id"), unique=False, nullable=True)
