@@ -6,3 +6,5 @@ data.db
 .DS_Store
 .env
 migrations/*
+.claude
+.mcp.json

@@ -16,10 +16,19 @@ from schemas import CircleSchema, CircleMemberSchema, UserSchema, CircleAndUserS
 
 blp = Blueprint("circles", __name__, description="Operations on Circle")
 
-# @blp.route("/user/<string:user_id>/circles")
-# class UserCircleList()
+@blp.route("/circles")
+class CircleList(MethodView):
+    @jwt_required()
+    @blp.response(200, CircleSchema(many=True))
+    def get(self):
+        """Get all circles the current user is a member of"""
+        current_user_id = int(get_jwt_identity())
 
+        # Get all circles where user is a member
+        memberships = CircleMembershipModel.query.filter_by(user_id=current_user_id).all()
+        circles = [CircleModel.query.get(m.circle_id) for m in memberships]
 
+        return circles
 
 @blp.route("/circle")
 class CircleCreate(MethodView):

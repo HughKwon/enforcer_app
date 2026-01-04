@@ -178,8 +178,26 @@ class BuddyRequestSchema(Schema):
     from_user = fields.Nested(PlainUserSchema, dump_only=True)
     to_user = fields.Nested(PlainUserSchema, dump_only=True)
 
+    # Add flat username fields for convenience
+    requester_id = fields.Method("get_requester_id")
+    requester_username = fields.Method("get_requester_username")
+    receiver_id = fields.Method("get_receiver_id")
+    receiver_username = fields.Method("get_receiver_username")
+
+    def get_requester_id(self, obj):
+        return obj.from_user_id
+
+    def get_requester_username(self, obj):
+        return obj.from_user.username if obj.from_user else None
+
+    def get_receiver_id(self, obj):
+        return obj.to_user_id
+
+    def get_receiver_username(self, obj):
+        return obj.to_user.username if obj.to_user else None
+
 class BuddyInfoSchema(Schema):
-    id = fields.Int()
+    user_id = fields.Int()
     username = fields.Str()
     email = fields.Str()
     buddies_since = fields.DateTime()

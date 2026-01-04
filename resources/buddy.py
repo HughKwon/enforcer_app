@@ -226,7 +226,7 @@ class BuddyList(MethodView):
             buddy = UserModel.query.get(rel.following_id)
             if buddy:
                 buddies.append({
-                    "id": buddy.id,
+                    "user_id": buddy.id,
                     "username": buddy.username,
                     "email": buddy.email,
                     "buddies_since": rel.created_at

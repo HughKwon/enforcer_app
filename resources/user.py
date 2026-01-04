@@ -22,6 +22,32 @@ from schemas import (
 
 blp = Blueprint("users", __name__, description="Operations on users")
 
+@blp.route("/users")
+class UserList(MethodView):
+    @jwt_required()
+    @blp.response(200, UserSchema(many=True))
+    def get(self):
+        """
+        Search/list users (excludes current user)
+        Query params: ?search=username
+        """
+        from flask import request
+        current_user_id = int(get_jwt_identity())
+
+        search_query = request.args.get('search', '').strip()
+
+        query = UserModel.query.filter(UserModel.id != current_user_id)
+
+        if search_query:
+            # Search by username or email
+            query = query.filter(
+                (UserModel.username.ilike(f'%{search_query}%')) |
+                (UserModel.email.ilike(f'%{search_query}%'))
+            )
+
+        users = query.limit(20).all()
+        return users
+
 @blp.route("/register")
 class UserRegister(MethodView):
     @blp.arguments(UserSchema)
