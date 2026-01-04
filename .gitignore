@@ -8,3 +8,11 @@ data.db
 migrations/*
 .claude
 .mcp.json
+
+# Frontend dependencies
+node_modules/
+frontend/node_modules/
+
+# Root-level Node files (frontend is in ./frontend/)
+/package.json
+/package-lock.json
